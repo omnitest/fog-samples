@@ -1,3 +1,7 @@
+require 'fog'
+
+Fog.mock! if ENV['FOG_MOCK'] # Not everything works
+
 class SampleHelper
   class << self
 
@@ -68,7 +72,7 @@ class SampleHelper
     end
 
     def rackspace_region
-      get_required_option('RAX_REGION', 'Enter Rackspace Region')
+      get_required_option('RAX_REGION', 'Enter Rackspace Region').to_sym
     end
 
     def authentication_endpoint
@@ -76,7 +80,7 @@ class SampleHelper
       if auth_url
         "#{auth_url}/v2.0"
       else
-        'https://identity.api.rackspacecloud.com'
+        'https://identity.api.rackspacecloud.com/v2.0'
       end
     end
 
