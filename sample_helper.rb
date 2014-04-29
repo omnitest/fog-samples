@@ -37,16 +37,18 @@ class SampleHelper
         end
         print "Selection: "
         selection = gets.chomp.to_i
-        value = list[selection]
+        value = list[selection].name
       end
     end
 
     def select_flavor(flavors, server)
-      SampleHelper.select_option('SERVER_SIZE', flavors.all, 'Select server flavor')
+      flavor_name = SampleHelper.select_option('SERVER_SIZE', flavors.all, 'Select server flavor')
+      find_matching flavors, flavor_name
     end
 
     def select_server(servers)
-      SampleHelper.select_option('SERVER_NAME', servers.all, 'Select a server')
+      server_name = SampleHelper.select_option('SERVER_NAME', servers.all, 'Select a server')
+      find_matching servers, server_name
     end
 
     def select_attachment(attachments)
@@ -82,6 +84,26 @@ class SampleHelper
       else
         'https://identity.api.rackspacecloud.com/v2.0'
       end
+    end
+
+    private
+
+    # Taken from vagrant-rackspace, added identity check
+    #
+    # This method finds a matching _thing_ in a collection of
+    # _things_. This works matching if the `name` is equal to
+    # an object, ID or NAME in the collection. Or, if `name`
+    # is a regexp, a partial match is chosen as well.
+    def find_matching(collection, name)
+      # Handle identity - so you can pass object, object_name
+      return name if collection.include? name 
+      collection.each do |single|
+        return single if single.id == name
+        return single if single.name == name
+        return single if name.is_a?(Regexp) && name =~ single.name
+      end
+
+      nil
     end
 
   end
