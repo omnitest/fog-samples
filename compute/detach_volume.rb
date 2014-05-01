@@ -38,6 +38,8 @@ attachments = server.attachments
 # prompt user for volume to detach
 attachment = SampleHelper.select_attachment(attachments)
 
+raise "No attachment to delete" if attachment.nil?
+
 volume = cbs_service.volumes.get attachment.volume_id
 puts "Detaching Volume #{volume.display_name} From Server #{server.name}"
 attachment.detach

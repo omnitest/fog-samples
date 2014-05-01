@@ -28,7 +28,7 @@ server = SampleHelper.select_server(servers)
 flavors = service.flavors
 
 # prompt user for flavor
-selected_flavor = SampleHelper.select_flavor(flavors, server)
+selected_flavor = SampleHelper.select_flavor(flavors)
 
 # resize server
 server.resize selected_flavor.id

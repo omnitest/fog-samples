@@ -19,7 +19,7 @@ service = Fog::Compute.new({
 })
 
 # pick the first flavor
-flavor = service.flavors.first
+flavor = service.flavors.find {|flavor| flavor.name == '1 GB Performance' }
 
 # pick the first Ubuntu image we can find
 image = service.images.find {|image| image.name =~ /Ubuntu/}

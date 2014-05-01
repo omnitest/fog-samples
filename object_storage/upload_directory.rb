@@ -28,7 +28,9 @@ local_dir = Pathname.new(SampleHelper.get_required_option 'UPLOAD_DIRECTORY', 'L
 Dir.glob("#{local_dir}/**/*").each do |full_path|
   path = Pathname.new(full_path).relative_path_from(local_dir)
   puts "Uploading #{path}"
-  directory.files.create(:key => path.to_s, :body => File.open(full_path)) unless File.directory?(full_path)
+  retriable do
+    directory.files.create(:key => path.to_s, :body => File.open(full_path)) unless File.directory?(full_path)
+  end
 end
 
 puts "You should be able to view this container via CDN at #{directory.public_url}"

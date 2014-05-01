@@ -18,8 +18,7 @@ service = Fog::Storage.new({
 })
 
 # prompt for directory name
-directory_name = SampleHelper.get_required_option 'REMOTE_DIRECTORY', 'Enter the name of the container to delete'
-directory = service.directories.get directory_name
+directory = SampleHelper.select_container service.directories
 raise 'The specified container does not exist.' if directory.nil?
 
 puts "\nPreparing to delete #{directory.key}"
@@ -27,7 +26,9 @@ puts "\nPreparing to delete #{directory.key}"
 # delete files if necessary
 directory.files.each do |f|
   puts "\tDeleting file #{f.key}"
-  f.destroy
+  retriable do
+    f.destroy
+  end
 end
 
 # delete directory
