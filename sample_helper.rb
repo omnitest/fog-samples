@@ -2,6 +2,23 @@ require 'fog'
 
 Fog.mock! if ENV['FOG_MOCK'] # Not everything works
 
+def retriable
+  tries = 3
+  begin
+    yield
+  # rescue Excon::Errors::SocketError, Excon::Errors::Timeout, Fog::Storage::Rackspace::ServiceError => e
+  rescue => e
+    require 'pry'; binding.pry
+    $stderr.puts e.inspect
+    tries -= 1
+    if tries > 0
+      retry
+    else
+      raise
+    end
+  end
+end
+
 class SampleHelper
   class << self
 
@@ -29,40 +46,49 @@ class SampleHelper
       end
     end
 
-    def select_option(key, list, prompt = "Please select from the values below")
+    def select_option(key, list, prompt = "Please select from the values below", &blk)
       value = get_option(key) do
         puts "#{prompt}:"
         list.each_with_index do |list_item, index|
-          puts "#{index}. #{list_item.name}"
+          if block_given?
+            yield list_item, index
+          else
+            puts "#{index}. #{list_item.name}"
+          end
         end
         print "Selection: "
         selection = gets.chomp.to_i
-        value = list[selection].name
+        value = list[selection]
       end
     end
 
-    def select_flavor(flavors, server)
-      flavor_name = SampleHelper.select_option('SERVER_SIZE', flavors.all, 'Select server flavor')
-      find_matching flavors, flavor_name
+    def select_container(containers)
+      container = SampleHelper.select_option('REMOTE_DIRECTORY', containers.all, 'Select a container') do |container, i|
+        puts "\t #{i}. #{container.key}"
+      end
+      find_matching containers, container
+    end
+
+    def select_flavor(flavors)
+      flavor = SampleHelper.select_option('SERVER_SIZE', flavors.all, 'Select server flavor')
+      find_matching flavors, flavor
     end
 
     def select_server(servers)
-      server_name = SampleHelper.select_option('SERVER_NAME', servers.all, 'Select a server')
-      find_matching servers, server_name
+      server = SampleHelper.select_option('SERVER_NAME', servers.all, 'Select a server')
+      find_matching servers, server
     end
 
     def select_attachment(attachments)
-      SampleHelper.get_option('ATTACHMENT_NAME') do
-        abort "\nThis server does not contain any volumes in the Chicago region. Try running server_attachments.rb\n\n" if attachments.empty?
-
-        puts "\nSelect Volume To Detach:\n\n"
-        attachments.each_with_index do |attachment, i|
-          puts "\t #{i}. #{attachment.device}"
-        end
-
-        delete_str = get_user_input "\nEnter Volume Number"
-        attachments[delete_str.to_i]
+      attachment = SampleHelper.select_option('ATTACHMENT_NAME', attachments.all, 'Select an attachment') do |attachment, i|
+        puts "\t #{i}. #{attachment.device}"
       end
+      find_matching attachments, attachment, :device
+    end
+
+    def select_queue(queues)
+      queue = SampleHelper.select_option('QUEUE_NAME', queues.all, 'Select a queue')
+      find_matching queues, queue
     end
 
     def rackspace_username
@@ -94,13 +120,18 @@ class SampleHelper
     # _things_. This works matching if the `name` is equal to
     # an object, ID or NAME in the collection. Or, if `name`
     # is a regexp, a partial match is chosen as well.
-    def find_matching(collection, name)
+    def find_matching(collection, name, primary_key = :id)
       # Handle identity - so you can pass object, object_name
       return name if collection.include? name 
       collection.each do |single|
-        return single if single.id == name
-        return single if single.name == name
-        return single if name.is_a?(Regexp) && name =~ single.name
+        # It's usually id, but are other possibilities like device
+        if single.respond_to? primary_key
+          return single if single.send(primary_key) == name
+        end
+        if single.respond_to? :name
+          return single if single.name == name
+          return single if name.is_a?(Regexp) && name =~ single.name
+        end
       end
 
       nil
