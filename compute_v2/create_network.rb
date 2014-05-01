@@ -1,11 +1,16 @@
 #!/usr/bin/env ruby
 
-# This example demonstrates creating a server with the Rackpace Open Cloud
+# This example demonstrates creating a private network and attaching it to a new server with the Rackpace Open Cloud
 
 require 'rubygems' #required for Ruby 1.8.x
 require 'fog'
-require "base64" #required to encode files for personality functionality
 require File.expand_path('../../sample_helper', __FILE__)
+
+# UUID for INTERNET
+INTERNET = '00000000-0000-0000-0000-000000000000'
+
+# UUID for Rackspace's service net
+SERVICE_NET = '11111111-1111-1111-1111-111111111111'
 
 # create Next Generation Cloud Server service
 service = Fog::Compute.new({
@@ -16,35 +21,24 @@ service = Fog::Compute.new({
   :rackspace_region => :ord #Use Chicago Region
 })
 
+#create private network called my_private_net with an ip range between 192.168.0.1 - 192.168.0.255 (Note this will accept IPv6 CIDRs as well)
+net = service.networks.create :label => 'my_private_net', :cidr => '192.168.0.0/24'
+
+puts "\nCreating #{net.label} Network with CIDR #{net.cidr}"
+
 # pick the first flavor
 flavor = service.flavors.first
 
 # pick the first Ubuntu image we can find
 image = service.images.find {|image| image.name =~ /Ubuntu/}
 
-# prompt for server name
-server_name = get_user_input "\nEnter Server Name"
-
-# create server
-server = service.servers.create :name => server_name,
+# Create a server called alphabits connected our private network as well as the internet
+server = service.servers.create :name => 'alphabits',
                                 :flavor_id => flavor.id,
                                 :image_id => image.id,
-                                :metadata => { 'fog_sample' => 'true'},
-                                :personality => [{
-                                  :path => '/root/fog.txt',
-                                  :contents => Base64.encode64('Fog was here!')
-                                }]
+                                :networks => [net.id, INTERNET]
 
-# reload flavor in order to retrieve all of its attributes
-flavor.reload
-
-puts "\nNow creating server '#{server.name}' the following with specifications:\n"
-puts "\t* #{flavor.ram} MB RAM"
-puts "\t* #{flavor.disk} GB"
-puts "\t* #{flavor.vcpus} CPU(s)"
-puts "\t* #{image.name}"
-
-puts "\n"
+puts "\nNow creating server '#{server.name}' connected the the Internet and '#{net.label}'\n"
 
 begin
   # Check every 5 seconds to see if server is in the active state (ready?).
@@ -68,6 +62,4 @@ rescue Fog::Errors::TimeoutError
 end
 
 puts "The #{server.username} password is #{server.password}\n\n"
-puts "To delete the server please execute the delete_server.rb script\n\n"
-
-
+puts "To delete the server and private network please execute the delete_network.rb script\n\n"

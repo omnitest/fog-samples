@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 
-# This example demonstrates deleting a queue with the Rackpace Open Cloud
+# This example demonstrates posting a message to a queue with the Rackpace Open Cloud
 
 require 'rubygems' #required for Ruby 1.8.x
 require 'fog'
+require File.expand_path('../../sample_helper', __FILE__)
 
 # create Queue Service
 service = Fog::Rackspace::Queues.new({
@@ -18,7 +19,13 @@ queues = service.queues
 # prompt for queue to delete
 queue = select_queue(queues)
 
-# delete queue
-queue.destroy
+# prompt for queue message
+message = get_user_input "Enter Queue Message"
 
-puts "\nQueue #{queue.name} has been destroyed\n"
+# time to live TTL = 1 hour
+ttl = 3600
+
+# post message to queue
+queue.messages.create :body => message, :ttl => ttl
+
+puts "The message has been successfully posted"

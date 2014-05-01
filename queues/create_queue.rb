@@ -8,14 +8,13 @@ require File.expand_path('../../sample_helper', __FILE__)
 
 # create Queue Service
 service = Fog::Rackspace::Queues.new({
-  :rackspace_username   => SampleHelper.rackspace_username,
-  :rackspace_api_key    => SampleHelper.rackspace_api_key,
-  :rackspace_region => SampleHelper.rackspace_region, # e.g. ord
-  :rackspace_auth_url   => SampleHelper.authentication_endpoint
+  :rackspace_username   => rackspace_username,
+  :rackspace_api_key    => rackspace_api_key,
+  :rackspace_region => :ord #Use Chicago Region
 })
 
 #prompt for queue name
-queue_name = SampleHelper.get_required_option 'QUEUE_NAME', "Enter name for queue"
+queue_name = get_user_input "Enter name for queue"
 
 begin
   # create queue

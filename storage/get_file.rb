@@ -9,8 +9,6 @@ require 'fog'
 require 'fileutils'
 require File.expand_path('../../sample_helper', __FILE__)
 
-Excon.defaults[:ssl_verify_peer] = false
-
 # create Cloud Files service
 service = Fog::Storage.new({
   :provider             => 'Rackspace',

@@ -1,34 +1,31 @@
 #!/usr/bin/env ruby
 
-# This example demonstrates how to resize an existing server instance.
-# 
-# Services used:
-#   - [ResizeServer](http://docs.rackspace.com/servers/api/v2/cs-devguide/content/Resize_Server-d1e3707.html)
+# This example demonstrates how to resize servers with Fog and the Rackspace Open Cloud
 
+require 'rubygems' #required for Ruby 1.8.x
 require 'fog'
 require File.expand_path('../../sample_helper', __FILE__)
 
 #create Next Generation Cloud Server service
 service = Fog::Compute.new({
   :provider             => 'rackspace',
-  :rackspace_username   => SampleHelper.rackspace_username,
-  :rackspace_api_key    => SampleHelper.rackspace_api_key,
+  :rackspace_username   => rackspace_username,
+  :rackspace_api_key    => rackspace_api_key,
   :version => :v2,  # Use Next Gen Cloud Servers
-  :rackspace_region => SampleHelper.rackspace_region, # e.g. ord
-  :rackspace_auth_url   => SampleHelper.authentication_endpoint
+  :rackspace_region => :ord #Use Chicago Region
 })
 
 #retrieve list of servers
 servers = service.servers
 
 #prompt user for server
-server = SampleHelper.select_server(servers)
+server = select_server(servers)
 
 # retrieve list of avaliable flavors
 flavors = service.flavors
 
 # prompt user for flavor
-selected_flavor = SampleHelper.select_flavor(flavors)
+selected_flavor = select_flavor(flavors, server)
 
 # resize server
 server.resize selected_flavor.id
