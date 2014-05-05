@@ -6,9 +6,7 @@ def retriable
   tries = 3
   begin
     yield
-  # rescue Excon::Errors::SocketError, Excon::Errors::Timeout, Fog::Storage::Rackspace::ServiceError => e
-  rescue => e
-    require 'pry'; binding.pry
+  rescue Excon::Errors::SocketError, Excon::Errors::Timeout, Fog::Storage::Rackspace::ServiceError => e
     $stderr.puts e.inspect
     tries -= 1
     if tries > 0
@@ -46,15 +44,11 @@ class SampleHelper
       end
     end
 
-    def select_option(key, list, prompt = "Please select from the values below", &blk)
+    def select_option(key, list, prompt = "Please select from the values below", display_field = :name, &blk)
       value = get_option(key) do
         puts "#{prompt}:"
         list.each_with_index do |list_item, index|
-          if block_given?
-            yield list_item, index
-          else
-            puts "#{index}. #{list_item.name}"
-          end
+          puts "#{index}. #{list_item.send display_field}"
         end
         print "Selection: "
         selection = gets.chomp.to_i
@@ -63,10 +57,8 @@ class SampleHelper
     end
 
     def select_container(containers)
-      container = SampleHelper.select_option('REMOTE_DIRECTORY', containers.all, 'Select a container') do |container, i|
-        puts "\t #{i}. #{container.key}"
-      end
-      find_matching containers, container
+      container = SampleHelper.select_option('REMOTE_DIRECTORY', containers.all, 'Select a container', :key)
+      find_matching containers, container, :key
     end
 
     def select_flavor(flavors)
@@ -80,15 +72,18 @@ class SampleHelper
     end
 
     def select_attachment(attachments)
-      attachment = SampleHelper.select_option('ATTACHMENT_NAME', attachments.all, 'Select an attachment') do |attachment, i|
-        puts "\t #{i}. #{attachment.device}"
-      end
+      attachment = SampleHelper.select_option('ATTACHMENT_NAME', attachments.all, 'Select an attachment', :device)
       find_matching attachments, attachment, :device
     end
 
     def select_queue(queues)
       queue = SampleHelper.select_option('QUEUE_NAME', queues.all, 'Select a queue')
       find_matching queues, queue
+    end
+
+    def select_load_balancer(load_balancers)
+      load_balancer = SampleHelper.select_option('LOAD_BALANCER_NAME', load_balancers.all, 'Select a load balancer')
+      find_matching load_balancers, load_balancer
     end
 
     def rackspace_username
