@@ -33,6 +33,8 @@ end
 
 # delete directory
 puts "\tDeleting container #{directory.key}"
-directory.destroy
+retriable do
+  directory.destroy
+end
 
 puts "\tDone\n\n"
