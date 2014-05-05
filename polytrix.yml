@@ -17,6 +17,24 @@
         - detach volume
         - delete server
         - delete container
+    Identity:
+      env:
+        SECONDARY_USER: test_user
+        SECONDARY_EMAIL: test@example.com
+      samples:
+        - add user
+        - list users
+        - reset api key
+        - delete user
+    Network:
+      env:
+        NETWORK_LABEL: test_network
+        SERVER_NAME: test_networked_server
+      samples:
+        - create network
+        - create networked server # re-use create server?
+        - delete server # basically a duplicate of delete server
+        - delete network
     Compute:
       env:
         CONFIRM_DELETE: y
