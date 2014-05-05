@@ -59,7 +59,7 @@
       env:
         LOAD_BALANCER_NAME: test_lb
       samples:
-        - add server
+        - create load balancer
         - secure load balancer
         - throttle connections
         - setup ssl
