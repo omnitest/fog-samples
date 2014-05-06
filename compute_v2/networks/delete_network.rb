@@ -20,4 +20,6 @@ service = Fog::Compute.new({
 
 net_label = SampleHelper.get_required_option 'NETWORK_LABEL', "\nEnter a label for the network to delete"
 
-service.networks.find{|n| n.label == net_label}.destroy
+retriable do
+  service.networks.find{|n| n.label == net_label}.destroy
+end

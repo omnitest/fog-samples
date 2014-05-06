@@ -1,17 +1,10 @@
 #!/usr/bin/env ruby
 require 'rspec'
 require 'yaml'
+require 'erb'
 require 'mixlib/shellout'
 
 MINUTES = 60 # in seconds
-
-STANDARD_ENV_VARS = {
-  'RAX_USERNAME' => ENV['RAX_USERNAME'],
-  'RAX_API_KEY'  => ENV['RAX_API_KEY'],
-  # 'RAX_AUTH_URL' => PACTO_URL,
-  'RAX_REGION'   => 'ORD' # Could select randomly
-  # HOME is used to find SSH key - may need to be fixed for Windows
-}
 
 def find_script(test_name)
   file = Dir.glob("**/*#{test_name.gsub(' ', '')}.*", File::FNM_CASEFOLD).first ||
@@ -34,7 +27,8 @@ def setup_suite(suite_name, tests, env, options = {})
   end
 end
 
-polytrix_config = YAML::load(File.read('polytrix.yml'))
+polytrix_config = YAML::load(ERB.new(File.read('polytrix.yml')).result)
+STANDARD_ENV_VARS = polytrix_config['global_env']
 polytrix_config['suites'].each do |suite_name, suite_config|
   setup_suite(suite_name, suite_config['samples'], suite_config['env'])
 end

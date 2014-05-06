@@ -9,7 +9,7 @@ require File.expand_path('../../../sample_helper', __FILE__)
 #   - [CreateServer](http://docs.rackspace.com/servers/api/v2/cs-devguide/content/CreateServers.html)
 
 # See Authentication sample
-lb_service = Fog::Rackspace::LoadBalancers.ne w(
+lb_service = Fog::Rackspace::LoadBalancers.new(
   rackspace_username: SampleHelper.rackspace_username,
   rackspace_api_key: SampleHelper.rackspace_api_key,
   rackspace_region: SampleHelper.rackspace_region, # e.g. ord

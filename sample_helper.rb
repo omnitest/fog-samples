@@ -6,10 +6,11 @@ def retriable
   tries = 3
   begin
     yield
-  rescue Excon::Errors::SocketError, Excon::Errors::Timeout, Fog::Storage::Rackspace::ServiceError => e
+  rescue Excon::Errors::SocketError, Excon::Errors::Timeout, Fog::Rackspace::Errors::ServiceError => e
     $stderr.puts e.inspect
     tries -= 1
     if tries > 0
+      sleep 3
       retry
     else
       raise

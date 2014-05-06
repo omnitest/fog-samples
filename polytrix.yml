@@ -2,6 +2,8 @@
   global_env:
     RAX_USERNAME: <%= ENV['RAX_USERNAME'] %>
     RAX_API_KEY: <%= ENV['RAX_API_KEY'] %>
+    # Enables Pacto integration
+    # OS_AUTH_URL: http://identity.api.rackspacecloud.dev:9000
   suites:
     Cleanup:
       env:
@@ -67,7 +69,7 @@
     Queues:
       env:
         QUEUE_NAME: test_queue
-        MSGS_TO_CLAIM: 5
+        MSGS_TO_CLAIM: "5" # Env vars must be strings
       samples:
         - create queue
         - add message
