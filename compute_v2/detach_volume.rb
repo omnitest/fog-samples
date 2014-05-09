@@ -42,7 +42,9 @@ raise "No attachment to delete" if attachment.nil?
 
 volume = cbs_service.volumes.get attachment.volume_id
 puts "Detaching Volume #{volume.display_name} From Server #{server.name}"
-attachment.detach
+retriable do
+  attachment.detach
+end
 
 puts "\n"
 delete_confirm = SampleHelper.get_required_option 'CONFIRM_DELETE', "Would You Like To Destroy Volume #{volume.display_name} (y/n)"
