@@ -9,7 +9,7 @@ service = Fog::Compute.new({
     :rackspace_username   => ENV['RAX_USERNAME'],
     :rackspace_api_key    => ENV['RAX_API_KEY'],
     :rackspace_region     => ENV['RAX_REGION'].downcase.to_sym,
-    :rackspace_auth_url   => "#{ENV['OS_AUTH_URL']}/v2.0"
+    :rackspace_auth_url   => "#{ENV['OS_AUTH_URL']}"
 })
 
 puts "Authenticated"

@@ -102,7 +102,7 @@ class SampleHelper
     def authentication_endpoint
       auth_url = get_option('OS_AUTH_URL')
       if auth_url
-        "#{auth_url}/v2.0"
+        "#{auth_url}"
       else
         'https://identity.api.rackspacecloud.com/v2.0'
       end
@@ -118,7 +118,7 @@ class SampleHelper
     # is a regexp, a partial match is chosen as well.
     def find_matching(collection, name, primary_key = :id)
       # Handle identity - so you can pass object, object_name
-      return name if collection.include? name 
+      return name if collection.include? name
       collection.each do |single|
         # It's usually id, but are other possibilities like device
         if single.respond_to? primary_key
